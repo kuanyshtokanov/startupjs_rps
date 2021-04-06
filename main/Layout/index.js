@@ -1,6 +1,6 @@
-import React from 'react'
-import { observer, emit, useValue, useLocal } from 'startupjs'
-import { Button, Div, H1, Layout, Menu, Row, SmartSidebar } from '@startupjs/ui'
+import React, { useEffect } from 'react'
+import { observer, emit, useValue, useSession, useLocal, useDoc } from 'startupjs'
+import { Button, Div, H1, Layout, Menu, Row, SmartSidebar, Avatar } from '@startupjs/ui'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import APP from '../../app.json'
 import './index.styl'
@@ -20,25 +20,38 @@ const MenuItem = observer(({ url, children }) => {
 })
 
 export default observer(function ({ children }) {
-  const [opened, $opened] = useValue(false)
+  const [open, $open] = useValue(false)
+  const [userId] = useSession('userId')
+  const [user] = useDoc('users', userId)
+  console.log(user)
 
-  function renderSidebar () {
+  useEffect(() => {
+    if (!user) {
+      emit('url', '/login')
+    }
+  }, [])
+
+  function renderSidebar() {
     return pug`
       Menu.sidebar-menu
-        MenuItem(url='/') App
-        MenuItem(url='/about') About
+        MenuItem(url='/') Games
+        MenuItem(url='/leader-board') Leader board
+        MenuItem(url='/past-games') Past games
     `
   }
 
   return pug`
     Layout
       SmartSidebar.sidebar(
-        $open=$opened
+        $open=$open
         renderContent=renderSidebar
       )
         Row.menu
-          Button(color='secondaryText' icon=faBars onPress=() => $opened.set(!opened))
+          Button(color='secondaryText' icon=faBars onPress=() => $open.set(!open))
           H1.logo= APP_NAME
+          Row.user
+            if user
+              Avatar(size='s')=user.name
 
         Div.body= children
   `
