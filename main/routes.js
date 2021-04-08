@@ -19,4 +19,9 @@ export default (components = {}) => [
     exact: true,
     component: components.PGameCreate
   },
+  {
+    path: '/game/:gameId',
+    exact: true,
+    component: components.PGame
+  },
 ]

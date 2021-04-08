@@ -4,6 +4,7 @@ import { observer, useSession, useQuery } from 'startupjs'
 import { Content } from '@startupjs/ui'
 import { TestComponent } from 'components'
 import Professor from './Professor'
+import Player from './Player'
 import './index.styl'
 
 export default observer(function PHome() {
@@ -19,6 +20,6 @@ export default observer(function PHome() {
     if user.isProfessor
       Professor
     else
-      Text qwe
+      Player
   `
 })

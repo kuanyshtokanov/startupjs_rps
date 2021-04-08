@@ -6,6 +6,7 @@ import GamesList from 'components/GamesList'
 import './index.styl'
 
 export default observer(() => {
+  const [user] = useSession('user')
   const [userId] = useSession('userId')
   const [games, $games] = useQuery('games',
     {
@@ -13,7 +14,10 @@ export default observer(() => {
         {
           $match: {
             isFinished: false,
-            professorId: userId
+            $or: [
+              { players: userId },
+              { $expr: { $lt: [{ $size: '$players' }, 2] } }
+            ]
           }
         }
       ]
@@ -22,14 +26,10 @@ export default observer(() => {
 
   const handleAddGame = () => emit('url', '/createGame')
 
-  console.log('Professor games', games)
+  console.log('Player user', userId)
+  console.log('Players games', games)
   return pug`
     Div.root
-      Div.actions
-        Button.btn(
-          color="success"
-          onPress=handleAddGame
-        ) Add Game
       Div.gamesList
         GamesList( gamesList=games )
   `

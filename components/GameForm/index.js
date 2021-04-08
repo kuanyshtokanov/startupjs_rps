@@ -16,6 +16,7 @@ export default observer(() => {
       isFinished: false,
       professorId: user.id,
       players: [],
+      playersStatistics: {},
       createdAt: new Date(),
     })
 
@@ -24,7 +25,7 @@ export default observer(() => {
       gameId,
       round: 1,
       winnerId: null,
-      players: []
+      players: {}
     })
 
     emit('url', '/')

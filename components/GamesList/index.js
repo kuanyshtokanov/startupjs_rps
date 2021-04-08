@@ -10,7 +10,6 @@ export default observer(({ gamesList }) => {
 
   const handleAddGame = () => emit('url', '/createGame')
 
-  console.log(user)
   return pug`
     Div.root
       for game, index in gamesList
