@@ -12,7 +12,6 @@ const PGame = observer(props => {
   const [user] = useSession('user')
 
   const [game, $game] = useDoc('games', gameId)
-  console.log('game page', game)
 
   const [rounds, $rounds] = useQuery('rounds', {
     gameId: gameId,
@@ -42,13 +41,13 @@ const PGame = observer(props => {
           Professor(
             userId=user.id
             game=game
-            rounds=rounds
+            round=rounds[0].round
           )
         else
           Player(
             userId=user.id
             game=game
-            rounds=rounds
+            round=rounds[0].round
           )
   `
 })

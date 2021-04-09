@@ -20,7 +20,7 @@ export default observer(({
   const handleAddGame = () => emit('url', '/createGame')
 
   const handleJoinGame = async () => {
-    if (game.players.length < 2 && !game.players.includes(user.id)) {
+    if (game.players.length < 2 && !game.players.includes(user.id) && !user.isProfessor) {
       $curGame.set('players', [...curGame.players, user.id])
     }
     emit('url', '/game/' + game._id)

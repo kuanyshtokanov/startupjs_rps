@@ -1,11 +1,19 @@
 import React from 'react'
 import { ScrollView, Text } from 'react-native'
 import _cloneDeep from 'lodash/cloneDeep'
+import _get from 'lodash/get'
 import { observer, useDoc, useSession, useQuery, model } from 'startupjs'
-import { Content, Div, H5, Button, Row } from '@startupjs/ui'
-import { faHandRock, faHandScissors, faHandPaper, faFlag } from '@fortawesome/free-solid-svg-icons'
+import { Content, Div, H5, Button, Row, Span, Icon } from '@startupjs/ui'
+import {
+  faHandRock,
+  faHandScissors,
+  faHandPaper,
+  faFlag,
+  faQuestionCircle,
+} from '@fortawesome/free-solid-svg-icons'
 
 import './index.styl'
+import { calculateRoundWinner } from '../helper'
 
 const options = [
   {
@@ -22,38 +30,73 @@ const options = [
   },
 ]
 
-const Player = observer(({ userId, game, rounds }) => {
+const resultIcons = {
+  rock: faHandRock,
+  paper: faHandPaper,
+  scissors: faHandScissors,
+  surrender: faFlag
+}
+
+const Player = observer(({ userId, game, round }) => {
+  const [rounds, $rounds] = useQuery('rounds', {
+    gameId: game.id,
+    round: round,
+    $limit: 1
+  })
   const currentRound = rounds[0]
+  console.log('player current round', currentRound)
   const opponentId = game.players.find(key => key !== userId)
-  console.log('userId', userId)
   console.log('opponentId', opponentId)
+  const [opponent] = useDoc('users', opponentId)
 
-  console.log('opponentId', opponentId)
+  const finishRound = async () => {
+    const playersData = currentRound.players
+    if (playersData[userId] && playersData[userId].response && playersData[opponentId] && playersData[opponentId].response) {
+      const [draw, userWinner] = calculateRoundWinner(currentRound, userId, opponentId)
 
-  const handleFinish = () => {
-    console.log('finish game')
-  }
-
-  const handleNext = () => {
-    console.log('next round')
+      await $rounds.at(currentRound.id).setEach({
+        winnerId: draw ? 'draw' : userWinner ? userId : opponentId
+      })
+    }
   }
 
   const handleOption = async (option) => {
-    const playerData = currentRound.players[userId]
+    const playersData = currentRound.players
+
+    let playersDataTemp = _cloneDeep(playersData)
+
     //check if player already chose option before
-    if (playerData && playerData.response) {
-      console.log('asd')
+    if (playersData[userId] && playersData[userId].response) {
+      console.log('player already chose option before')
       return
     }
+    // 87272585466
+    playersDataTemp[userId] = {
+      response: option,
+      score: 0,
+      totalScore: 0,
+    }
+    await $rounds.at(currentRound.id).setEach({
+      players: { ...playersDataTemp }
+    })
 
-    // const currentRoundTemp = _cloneDeep(currentRound)
-    // currentRoundTemp.players[userId] = { response: option }
-
-    await model.setEach(`rounds.${currentRound.id}.players.${userId}`, { response: option })
+    finishRound()
   }
 
   const handleSurrender = () => {
-    console.log('handleSurrender')
+    handleOption('surrender')
+  }
+
+  const renderPlayers = (curUserId) => {
+    const response = _get(currentRound, `players.${curUserId}.response`)
+
+    const icon = response ? resultIcons[response] : faQuestionCircle
+
+    return pug`
+      Icon.currentResponse(
+        icon=icon
+      )
+    `
   }
 
   if (game.isFinished) {
@@ -66,7 +109,18 @@ const Player = observer(({ userId, game, rounds }) => {
     Div.root
       Text Player game
       H5.title Round #{currentRound.round}
-      H5.title Make a move!
+      if opponentId
+        Div.responses
+          Div.playerField
+            Span You
+            =renderPlayers(userId)
+          if round.winnerId
+            Span #{currentRound.winnerId === user.id ? 'YOU WIN' : currentRound.winnerId==='draw' ? 'DRAW' : 'YOU LOSE' }
+          Div.playerField.right
+            Span #{opponent.name}
+            =renderPlayers(opponentId)
+      if !currentRound.players[userId].response
+        H5.title Make a move!
       Row.options
         for option, index in options
           Button.option(

@@ -5,7 +5,12 @@ import { Content, Div, H5, Button } from '@startupjs/ui'
 
 import './index.styl'
 
-const Professor = observer(({ userId, game, rounds }) => {
+const Professor = observer(({ userId, game, round }) => {
+  const [rounds, $rounds] = useQuery('rounds', {
+    gameId: game.id,
+    round: round,
+    $limit: 1
+  })
   const currentRound = rounds[0]
 
   const [firstPlayerId, secondPlayerId] = game.players
