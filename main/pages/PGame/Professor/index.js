@@ -14,10 +14,18 @@ const Professor = observer(({ game, round }) => {
   const currentRound = curRounds[0]
 
   const handleFinish = async () => {
+    const stats = game.players.reduce((acc, item) => {
+      acc[item] = currentRound.players[item].totalScore
+      return acc
+    }, {})
+
     await model.setEach(`games.${game.id}`, {
       isFinished: true,
+      playersStatistics: stats
     })
+
     emit('url', '/')
+    // await model.del('games.' + '4af2d247-127c-48ce-be8a-69210ab67f85')
   }
 
   const handleNext = async () => {

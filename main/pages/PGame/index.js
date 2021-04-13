@@ -2,7 +2,7 @@ import React from 'react'
 import { ScrollView, Text } from 'react-native'
 import { observer, useDoc, useSession, useQuery } from 'startupjs'
 import { Content, Div, H2, H4, H6, Span } from '@startupjs/ui'
-import GameChronology from 'components/GameChronology'
+import RoundChronology from 'components/RoundChronology'
 import Professor from "./Professor"
 import Player from "./Player"
 
@@ -35,7 +35,7 @@ const PGame = observer(props => {
     ScrollView.root
       Content
         H4.header= game.name
-        GameChronology(
+        RoundChronology(
           rounds=rounds
           game=game
           user=user

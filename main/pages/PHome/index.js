@@ -9,8 +9,6 @@ import './index.styl'
 
 export default observer(function PHome() {
   const [user] = useSession('user')
-  const [games, $games] = useQuery('games', {})
-  const [rounds, $rounds] = useQuery('rounds', {})
 
   return pug`
     if user.isProfessor

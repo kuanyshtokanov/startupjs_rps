@@ -21,15 +21,9 @@ const resultIcons = {
   surrender: faFlag
 }
 
-export default observer(({ game, user }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [rounds, $rounds] = useQuery('rounds', {
-    gameId: game.id,
-    $sort: { round: -1 },
-  })
-  console.log('game rounds', rounds)
+export default observer(({ firstPlayerId, secondPlayerId, rounds }) => {
 
-  const [firstPlayerId, secondPlayerId] = game.players
+  console.log('game rounds', rounds)
 
   const [player1] = useDoc('users', firstPlayerId)
   const [player2] = useDoc('users', secondPlayerId)
@@ -74,23 +68,14 @@ export default observer(({ game, user }) => {
   }
 
   return pug`
-    Card.root
-      Collapse.collapse(
-        open=isOpen
-        onChange=() => setIsOpen(!isOpen)
-        variant='pure'
-      )
-        Collapse.Header(iconPosition='left')
-          Span.item__value= 'Game chronology'
-        Collapse.Content
-          Div.totalScore
-            RenderScore(isTotal=true)
-          for round, index in rounds
-            Div.info(key=index)
-              Div.round
-                H6='Round # ' + round.round
-              Div.responses
-                RenderScore(isTotal=false, round=round.round)
+    Div.totalScore
+      RenderScore(isTotal=true)
+    for round, index in rounds
+      Div.info(key=index)
+        Div.round
+          H6='Round # ' + round.round
+        Div.responses
+          RenderScore(isTotal=false, round=round.round)
               
   `
 })

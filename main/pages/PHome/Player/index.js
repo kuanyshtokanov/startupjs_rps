@@ -8,6 +8,7 @@ import './index.styl'
 export default observer(() => {
   const [user] = useSession('user')
   const [userId] = useSession('userId')
+
   const [games, $games] = useQuery('games',
     {
       $aggregate: [
@@ -16,14 +17,15 @@ export default observer(() => {
             isFinished: false,
             $or: [
               { players: userId },
-              { $expr: { $lt: [{ $size: '$players' }, 2] } }
+              { $expr: { $lt: [{ $size: { "$ifNull": ["$players", []] } }, 2] } }
             ]
           }
         }
       ]
     }
   )
-
+  // { $expr: { $lt: [{ $size: '$players' }, 2] } }
+  // { $expr: { $lt: [{ $size: { "$ifNull": ["$players", []] } }, 2] } }
   const handleAddGame = () => emit('url', '/createGame')
 
   return pug`
