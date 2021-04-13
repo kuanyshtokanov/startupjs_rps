@@ -30,7 +30,6 @@ const getScore = (score, isCombo) => {
 }
 
 export const calculatePoints = (allRounds, curRound, curWinner) => {
-  console.log('allRounds', allRounds)
   const prevRound = allRounds[1]
   const playersData = allRounds[0].players
   let playersDataTemp = _cloneDeep(playersData)

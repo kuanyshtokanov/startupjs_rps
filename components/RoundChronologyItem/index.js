@@ -22,9 +22,6 @@ const resultIcons = {
 }
 
 export default observer(({ firstPlayerId, secondPlayerId, rounds }) => {
-
-  console.log('game rounds', rounds)
-
   const [player1] = useDoc('users', firstPlayerId)
   const [player2] = useDoc('users', secondPlayerId)
 

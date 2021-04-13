@@ -33,8 +33,6 @@ const PPastGames = () => {
     ]
   })
 
-  console.log('past', games)
-
   return pug`
     Div.root
       for game, index in games

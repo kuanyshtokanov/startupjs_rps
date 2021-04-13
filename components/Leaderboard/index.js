@@ -32,8 +32,6 @@ const Leaderboard = observer(() => {
     ]
   })
 
-  console.log('players leaders', players)
-
   if (!players || !players.length) {
     return pug`
       H4.title There are no players.

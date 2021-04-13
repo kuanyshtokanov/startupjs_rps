@@ -11,16 +11,16 @@ export default observer(({
   game,
   index
 }) => {
-  console.log('gameslistitem', game)
   const [isOpen, setIsOpen] = useState(false)
   const [professor, $professor] = useDoc('users', game.professorId)
   const [curGame, $curGame] = useDoc('games', game._id)
 
   const [player1, player2] = game.players
-  const player1Id = player1._id ? player1._id : player1
-  const player2Id = player2._id ? player2._id : player2
+  const player1Id = player1?._id ? player1._id : player1
+  const player2Id = player2?._id ? player2._id : player2
 
   const [firstPlayer, $firstPlayer] = useDoc('users', player1Id)
+
   const [secondPlayer, $secondPlayer] = useDoc('users', player2Id)
 
   const handleAddGame = () => emit('url', '/createGame')
@@ -32,8 +32,8 @@ export default observer(({
     emit('url', '/game/' + game._id)
   }
 
-  const getPlayerScore = (playerId) => {
-    return game.playersStatistics[playerId] ? ', score: ' + game.playersStatistics[playerId] : ''
+  const getPlayerScore = (player) => {
+    return player ? player.name + (game.playersStatistics[player.id] ? ', score: ' + game.playersStatistics[player.id] : '') : ''
   }
 
   return pug`
@@ -55,8 +55,10 @@ export default observer(({
               Span.item__value= moment(game._m.ctime).format('MMMM Do YYYY, h:mm:ss a')
             Div.item
               Span.item__label Players: 
-              Span.item__value= firstPlayer.name + getPlayerScore(player1Id)
-              Span.item__value= secondPlayer.name + getPlayerScore(player2Id)
+              if firstPlayer
+                Span.item__value= getPlayerScore(firstPlayer)
+              if secondPlayer
+                Span.item__value= getPlayerScore(secondPlayer)
             Div.item
               Span.item__label Professor: 
               Span.item__value= professor.name

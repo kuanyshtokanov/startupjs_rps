@@ -1,7 +1,7 @@
 import React from 'react'
 import { ScrollView, Text } from 'react-native'
 import { observer, useSession, useDoc, model, emit } from 'startupjs'
-import { Div } from '@startupjs/ui'
+import { Div, H6 } from '@startupjs/ui'
 import GamesListItem from 'components/GamesListItem'
 import './index.styl'
 
@@ -12,6 +12,8 @@ export default observer(({ gamesList }) => {
 
   return pug`
     Div.root
+      if gamesList.length < 1
+        H6.text There are no games to join
       for game, index in gamesList
         GamesListItem(
           key=index
