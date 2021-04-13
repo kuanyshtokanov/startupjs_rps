@@ -12,10 +12,6 @@ export default observer(function PHome() {
   const [games, $games] = useQuery('games', {})
   const [rounds, $rounds] = useQuery('rounds', {})
 
-  console.log('PHome games - ', games)
-  console.log('PHome rounds - ', rounds)
-  console.log('PHome user - ', user)
-
   return pug`
     if user.isProfessor
       Professor

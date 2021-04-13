@@ -26,8 +26,6 @@ export default observer(() => {
 
   const handleAddGame = () => emit('url', '/createGame')
 
-  console.log('Player user', userId)
-  console.log('Players games', games)
   return pug`
     Div.root
       Div.gamesList

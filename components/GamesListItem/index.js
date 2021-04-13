@@ -15,7 +15,6 @@ export default observer(({
   const [professor, $professor] = useDoc('users', game.professorId)
   const [curGame, $curGame] = useDoc('games', game._id)
   const [rounds, $rounds] = useQuery('rounds', { gameId: game._id })
-  console.log('rounds', rounds)
 
   const handleAddGame = () => emit('url', '/createGame')
 

@@ -1,9 +1,9 @@
 import React from 'react'
-import { ScrollView, Text } from 'react-native'
+import { Text } from 'react-native'
 import _cloneDeep from 'lodash/cloneDeep'
 import _get from 'lodash/get'
-import { observer, useDoc, useSession, useQuery, model } from 'startupjs'
-import { Content, Div, H5, Button, Row, Span, Icon } from '@startupjs/ui'
+import { observer, useDoc, useQuery } from 'startupjs'
+import { Content, Div, H5, H6, Button, Row, Span, Icon } from '@startupjs/ui'
 import {
   faHandRock,
   faHandScissors,
@@ -13,7 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 import './index.styl'
-import { calculateRoundWinner } from '../helper'
+import { calculateRoundWinner, calculatePoints, getUser } from '../helper'
 
 const options = [
   {
@@ -38,24 +38,31 @@ const resultIcons = {
 }
 
 const Player = observer(({ userId, game, round }) => {
-  const [rounds, $rounds] = useQuery('rounds', {
+  const [curRounds, $curRounds] = useQuery('rounds', {
     gameId: game.id,
     round: round,
-    $limit: 1
   })
-  const currentRound = rounds[0]
-  console.log('player current round', currentRound)
+  const [allRounds, $allRounds] = useQuery('rounds', {
+    gameId: game.id,
+    $sort: { round: -1 },
+    $limit: 2
+  })
+  const currentRound = curRounds[0]
+
   const opponentId = game.players.find(key => key !== userId)
-  console.log('opponentId', opponentId)
+
   const [opponent] = useDoc('users', opponentId)
 
   const finishRound = async () => {
     const playersData = currentRound.players
     if (playersData[userId] && playersData[userId].response && playersData[opponentId] && playersData[opponentId].response) {
       const [draw, userWinner] = calculateRoundWinner(currentRound, userId, opponentId)
-
-      await $rounds.at(currentRound.id).setEach({
-        winnerId: draw ? 'draw' : userWinner ? userId : opponentId
+      const winnerId = draw ? 'draw' : userWinner ? userId : opponentId
+      //calculate points
+      const players = calculatePoints(allRounds, round, winnerId)
+      await $curRounds.at(currentRound.id).setEach({
+        winnerId,
+        players,
       })
     }
   }
@@ -70,13 +77,15 @@ const Player = observer(({ userId, game, round }) => {
       console.log('player already chose option before')
       return
     }
+
     // 87272585466
+
     playersDataTemp[userId] = {
       response: option,
       score: 0,
       totalScore: 0,
     }
-    await $rounds.at(currentRound.id).setEach({
+    await $curRounds.at(currentRound.id).setEach({
       players: { ...playersDataTemp }
     })
 
@@ -87,10 +96,10 @@ const Player = observer(({ userId, game, round }) => {
     handleOption('surrender')
   }
 
-  const renderPlayers = (curUserId) => {
+  const renderPlayers = (curUserId, isUser) => {
     const response = _get(currentRound, `players.${curUserId}.response`)
 
-    const icon = response ? resultIcons[response] : faQuestionCircle
+    const icon = (currentRound.winnerId) || (isUser && response) ? resultIcons[response] : faQuestionCircle
 
     return pug`
       Icon.currentResponse(
@@ -109,17 +118,20 @@ const Player = observer(({ userId, game, round }) => {
     Div.root
       Text Player game
       H5.title Round #{currentRound.round}
+      if currentRound && currentRound.winnerId
+        H6.winnerHeader Round finished! 
+        Span.winner #{currentRound.winnerId === 'draw' ? 'DRAW' : currentRound.winnerId===userId ? 'You win!' : 'You lost!'}
       if opponentId
         Div.responses
-          Div.playerField
+          Div.playerResponse
             Span You
-            =renderPlayers(userId)
+            =renderPlayers(userId, true)
           if round.winnerId
             Span #{currentRound.winnerId === user.id ? 'YOU WIN' : currentRound.winnerId==='draw' ? 'DRAW' : 'YOU LOSE' }
-          Div.playerField.right
+          Div.playerResponse
             Span #{opponent.name}
-            =renderPlayers(opponentId)
-      if !currentRound.players[userId].response
+            =renderPlayers(opponentId, false)
+      if !currentRound.players[userId]
         H5.title Make a move!
       Row.options
         for option, index in options

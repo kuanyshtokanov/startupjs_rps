@@ -1,48 +1,41 @@
 import React from 'react'
 import { ScrollView, Text } from 'react-native'
-import { observer, useDoc, useSession, useQuery } from 'startupjs'
-import { Content, Div, H5, Button } from '@startupjs/ui'
+import { observer, useDoc, useSession, useQuery, emit, model } from 'startupjs'
+import { Content, Div, H5, H6, Span, Button } from '@startupjs/ui'
 
+import { getUser } from '../helper'
 import './index.styl'
 
-const Professor = observer(({ userId, game, round }) => {
-  const [rounds, $rounds] = useQuery('rounds', {
+const Professor = observer(({ game, round }) => {
+  const [curRounds, $curRounds] = useQuery('rounds', {
     gameId: game.id,
     round: round,
-    $limit: 1
   })
-  const currentRound = rounds[0]
-
-  const [firstPlayerId, secondPlayerId] = game.players
-  console.log('first player ', firstPlayerId)
-  console.log('second player ', secondPlayerId)
-  console.log('professor asd', game)
+  const currentRound = curRounds[0]
 
   const handleFinish = async () => {
-    console.log('finish game')
     await model.setEach(`games.${game.id}`, {
       isFinished: true,
-      // playersStatistics: {
-      //   [firstPlayerId]: {
-      //     status: getPlayerStatus(firstPlayerStats.totalScore, secondPlayerStats.totalScore),
-      //     finalScore: firstPlayerStats.totalScore
-      //   },
-      //   [secondPlayerId]: {
-      //     status: getPlayerStatus(secondPlayerStats.totalScore, firstPlayerStats.totalScore),
-      //     finalScore: secondPlayerStats.totalScore
-      //   }
-      // }
     })
+    emit('url', '/')
   }
 
-  const handleNext = () => {
-    console.log('next round')
+  const handleNext = async () => {
+    await model.add('rounds', {
+      id: model.id(),
+      gameId: game.id,
+      round: currentRound.round + 1,
+      winnerId: null,
+      players: {}
+    })
   }
 
   return pug`
     Div.root
       Text Professor game
       H5.title Round #{currentRound.round}
+      if currentRound && currentRound.winnerId
+        H6.winnerHeader Round finished! 
       Div.actions
         Button.btn(
           disabled=currentRound.winnerId || game.isFinished ? false: true

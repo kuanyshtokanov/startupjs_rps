@@ -31,7 +31,6 @@ export default observer(() => {
     emit('url', '/')
   }
 
-  console.log(user)
   return pug`
     Div.root
       Div.createGame

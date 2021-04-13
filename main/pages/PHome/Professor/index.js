@@ -22,7 +22,6 @@ export default observer(() => {
 
   const handleAddGame = () => emit('url', '/createGame')
 
-  console.log('Professor games', games)
   return pug`
     Div.root
       Div.actions
