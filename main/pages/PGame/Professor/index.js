@@ -1,17 +1,16 @@
 import React from 'react'
 import { ScrollView, Text } from 'react-native'
-import { observer, useDoc, useSession, useQuery, emit, model } from 'startupjs'
+import { observer, useDoc, useSession, useQueryDoc, emit, model } from 'startupjs'
 import { Content, Div, H5, H6, Span, Button } from '@startupjs/ui'
 
 import { getUser } from '../helper'
 import './index.styl'
 
 const Professor = observer(({ game, round }) => {
-  const [curRounds, $curRounds] = useQuery('rounds', {
+  const [currentRound, $currentRound] = useQueryDoc('rounds', {
     gameId: game.id,
     round: round,
   })
-  const currentRound = curRounds[0]
 
   const handleFinish = async () => {
     const stats = game.players.reduce((acc, item) => {
@@ -19,12 +18,12 @@ const Professor = observer(({ game, round }) => {
       return acc
     }, {})
 
-    await model.setEach(`games.${game.id}`, {
+    await $currentRound.setEach({
       isFinished: true,
       playersStatistics: stats
     })
 
-    emit('url', '/')
+    emit('url', '/games')
     // await model.del('games.' + '4af2d247-127c-48ce-be8a-69210ab67f85')
   }
 

@@ -29,7 +29,7 @@ const Login = observer(() => {
         $value=$name
       )
       Checkbox.checkbox(
-        label="Professor"
+        label='Professor'
         value=checked
         onChange=handleCheck
       )

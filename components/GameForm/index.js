@@ -1,16 +1,19 @@
 import React from 'react'
-import { observer, useSession, model, emit, useDoc } from 'startupjs'
-import { Input, Button, Div } from '@startupjs/ui'
+import { observer, useSession, model, emit, useDoc, useQuery } from 'startupjs'
+import { Input, Button, Div, TextInput } from '@startupjs/ui'
 import './index.styl'
 
 export default observer(() => {
   const [user] = useSession('user')
   const [gameName, setGameName] = React.useState('')
 
+  const $gameData = model.scope('games')
+  const $roundsData = model.scope('rounds')
+
   const handleCreateGame = async () => {
     const gameId = model.id()
 
-    await model.add('games', {
+    await $gameData.add({
       id: gameId,
       name: gameName,
       isFinished: false,
@@ -20,7 +23,7 @@ export default observer(() => {
       createdAt: new Date(),
     })
 
-    await model.add('rounds', {
+    await $roundsData.add({
       id: model.id(),
       gameId,
       round: 1,
@@ -28,17 +31,21 @@ export default observer(() => {
       players: {}
     })
 
-    emit('url', '/')
+    emit('url', '/games')
+  }
+
+  const handleInputChange = val => {
+    console.log('val', val)
   }
 
   return pug`
     Div.root
       Div.createGame
-        Input.gameInput(
+        TextInput.gameInput(
           name="name"
           placeholder="Input game name"
           value=gameName
-          onChange=e=>setGameName(e.target.value)
+          onChangeText=setGameName
         )
         Button.createButton(disabled=!gameName onClick=handleCreateGame) Create game
   `

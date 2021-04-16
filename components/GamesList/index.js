@@ -8,8 +8,6 @@ import './index.styl'
 export default observer(({ gamesList }) => {
   const [user] = useSession('user')
 
-  const handleAddGame = () => emit('url', '/createGame')
-
   return pug`
     Div.root
       if gamesList.length < 1

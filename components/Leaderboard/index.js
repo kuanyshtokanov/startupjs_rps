@@ -47,7 +47,7 @@ const Leaderboard = observer(() => {
         )
           Span.position #{index + 1}. 
           Span.name= player.name
-          Span.score #{player.totalScore} points
+          Span.score= player.totalScore + ' points'
   `
 })
 

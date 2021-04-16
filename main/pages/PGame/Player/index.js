@@ -2,7 +2,7 @@ import React from 'react'
 import { Text } from 'react-native'
 import _cloneDeep from 'lodash/cloneDeep'
 import _get from 'lodash/get'
-import { observer, useDoc, useQuery } from 'startupjs'
+import { observer, useDoc, useQuery, useQueryDoc } from 'startupjs'
 import { Content, Div, H5, H6, Button, Row, Span, Icon } from '@startupjs/ui'
 import {
   faHandRock,
@@ -38,16 +38,17 @@ const resultIcons = {
 }
 
 const Player = observer(({ userId, game, round }) => {
-  const [curRounds, $curRounds] = useQuery('rounds', {
+  const [currentRound, $currentRound] = useQueryDoc('rounds', {
     gameId: game.id,
     round: round,
   })
+  console.log('currentRound', currentRound)
   const [allRounds, $allRounds] = useQuery('rounds', {
     gameId: game.id,
     $sort: { round: -1 },
     $limit: 2
   })
-  const currentRound = curRounds[0]
+  // const currentRound = curRounds[0]
 
   const opponentId = game.players.find(key => key !== userId)
 
@@ -60,7 +61,7 @@ const Player = observer(({ userId, game, round }) => {
       const winnerId = draw ? 'draw' : userWinner ? userId : opponentId
       //calculate points
       const players = calculatePoints(allRounds, round, winnerId)
-      await $curRounds.at(currentRound.id).setEach({
+      await $currentRound.setEach({
         winnerId,
         players,
       })
@@ -85,7 +86,7 @@ const Player = observer(({ userId, game, round }) => {
       score: 0,
       totalScore: 0,
     }
-    await $curRounds.at(currentRound.id).setEach({
+    await $currentRound.setEach({
       players: { ...playersDataTemp }
     })
 

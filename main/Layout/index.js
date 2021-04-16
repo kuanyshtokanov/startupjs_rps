@@ -21,8 +21,7 @@ const MenuItem = observer(({ url, children }) => {
 
 export default observer(function ({ children }) {
   const [open, $open] = useValue(false)
-  const [userId] = useSession('userId')
-  const [user] = useDoc('users', userId)
+  const [user, $user] = useSession('user')
 
   useEffect(() => {
     if (!user) {
