@@ -48,7 +48,6 @@ const Player = observer(({ userId, game, round }) => {
     $sort: { round: -1 },
     $limit: 2
   })
-  // const currentRound = curRounds[0]
 
   const opponentId = game.players.find(key => key !== userId)
 
