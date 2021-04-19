@@ -1,6 +1,6 @@
 import React from 'react'
 import { ScrollView, Text } from 'react-native'
-import { observer, useDoc, useSession, useQueryDoc, emit, model } from 'startupjs'
+import { observer, useDoc, useQueryDoc, emit, model } from 'startupjs'
 import { Content, Div, H5, H6, Span, Button } from '@startupjs/ui'
 
 import { getUser } from '../helper'
@@ -12,28 +12,22 @@ const Professor = observer(({ game, round }) => {
     round: round,
   })
 
-  const handleFinish = async () => {
-    const stats = game.players.reduce((acc, item) => {
-      acc[item] = currentRound.players[item].totalScore
-      return acc
-    }, {})
+  const [, $games] = useDoc('games', game.id)
 
-    await $currentRound.setEach({
-      isFinished: true,
-      playersStatistics: stats
-    })
+  const handleFinish = async () => {
+    await $games.finishGame(game.players, currentRound)
 
     emit('url', '/games')
-    // await model.del('games.' + '4af2d247-127c-48ce-be8a-69210ab67f85')
   }
 
   const handleNext = async () => {
-    await model.add('rounds', {
-      id: model.id(),
+    const rId = model.id()
+    await $currentRound.addSelf({
+      id: rId,
       gameId: game.id,
       round: currentRound.round + 1,
       winnerId: null,
-      players: {}
+      players: {},
     })
   }
 

@@ -13,6 +13,7 @@ const PGame = observer(props => {
   const [user] = useSession('user')
 
   const [game, $game] = useDoc('games', gameId)
+  console.log('gamecur', game)
 
   const [rounds, $rounds] = useQuery('rounds', {
     gameId: gameId,

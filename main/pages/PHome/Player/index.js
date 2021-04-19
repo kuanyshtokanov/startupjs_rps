@@ -6,7 +6,6 @@ import GamesList from 'components/GamesList'
 import './index.styl'
 
 export default observer(() => {
-  const [user] = useSession('user')
   const [userId] = useSession('userId')
 
   const [games, $games] = useQuery('games',
@@ -26,7 +25,6 @@ export default observer(() => {
   )
   // { $expr: { $lt: [{ $size: '$players' }, 2] } }
   // { $expr: { $lt: [{ $size: { "$ifNull": ["$players", []] } }, 2] } }
-  const handleAddGame = () => emit('url', '/createGame')
 
   return pug`
     Div.root

@@ -1,6 +1,5 @@
 import React from 'react'
 import { Text } from 'react-native'
-import _cloneDeep from 'lodash/cloneDeep'
 import _get from 'lodash/get'
 import { observer, useDoc, useQuery, useQueryDoc } from 'startupjs'
 import { Content, Div, H5, H6, Button, Row, Span, Icon } from '@startupjs/ui'
@@ -13,7 +12,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 import './index.styl'
-import { calculateRoundWinner, calculatePoints, getUser } from '../helper'
 
 const options = [
   {
@@ -56,21 +54,12 @@ const Player = observer(({ userId, game, round }) => {
   const finishRound = async () => {
     const playersData = currentRound.players
     if (playersData[userId] && playersData[userId].response && playersData[opponentId] && playersData[opponentId].response) {
-      const [draw, userWinner] = calculateRoundWinner(currentRound, userId, opponentId)
-      const winnerId = draw ? 'draw' : userWinner ? userId : opponentId
-      //calculate points
-      const players = calculatePoints(allRounds, round, winnerId)
-      await $currentRound.setEach({
-        winnerId,
-        players,
-      })
+      await $currentRound.finishRound(currentRound, userId, opponentId, allRounds, round)
     }
   }
 
   const handleOption = async (option) => {
     const playersData = currentRound.players
-
-    let playersDataTemp = _cloneDeep(playersData)
 
     //check if player already chose option before
     if (playersData[userId] && playersData[userId].response) {
@@ -78,16 +67,7 @@ const Player = observer(({ userId, game, round }) => {
       return
     }
 
-    // 87272585466
-
-    playersDataTemp[userId] = {
-      response: option,
-      score: 0,
-      totalScore: 0,
-    }
-    await $currentRound.setEach({
-      players: { ...playersDataTemp }
-    })
+    await $currentRound.chooseOption(playersData, userId, option)
 
     finishRound()
   }
@@ -116,7 +96,6 @@ const Player = observer(({ userId, game, round }) => {
 
   return pug`
     Div.root
-      Text Player game
       H5.title Round #{currentRound.round}
       if currentRound && currentRound.winnerId
         H6.winnerHeader Round finished! 
