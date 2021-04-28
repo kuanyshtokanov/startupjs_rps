@@ -21,10 +21,13 @@
     "fonts": "startupjs fonts"
   },
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
     "@react-native-community/datetimepicker": "^3.0.6",
     "@react-native-picker/picker": "^1.9.3",
     "@startupjs/ui": "^0.33.5",
     "axios": "^0.21.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
     "nconf": "^0.10.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
